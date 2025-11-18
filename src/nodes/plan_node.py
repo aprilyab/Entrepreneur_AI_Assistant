@@ -1,36 +1,19 @@
 from typing import Tuple
 from uuid import uuid4
 from src.state import Task
-from langchain_openai import ChatOpenAI
-from langchain.schema import HumanMessage, SystemMessage
+from src.llm.groq_llm import ask_groq
 
-
-llm = ChatOpenAI(
-    model="gpt-4o-mini",   
-    temperature=0.7,
-    api_key="YOUR_OPENAI_KEY"
-)
 
 def plan_node(state) -> Tuple:
-    prompt = (
-        f"The user wants to start a company: '{state.startup_idea}'. "
-        "Generate 4-6 actionable, ordered steps to start this company. "
-        "Each step should be a concise sentence."
-    )
-
-    response = llm([
-        SystemMessage(content="You are an AI startup mentor."),
-        HumanMessage(content=prompt)
-    ])
-
-   
-    steps_text = response.content.strip().split('\n')
-    steps = [
-        Task(id=str(uuid4()), description=line.strip())
-        for line in steps_text if line.strip()
-    ]
-
-    state.steps.extend(steps)
-    msg = "LLM-generated plan steps have been created. Do you want to prioritize them?"
-
-    return state, msg
+    idea = state.current_idea
+    model = state.ideas_data[idea].get("chosen_model") or state.ideas_data[idea].get("business_models")
+    prompt = f"Generate 5 actionable startup steps for idea: {idea} using model: {model}. Return as 1-per-line bullets."
+    resp = ask_groq(prompt)
+    steps = []
+    for line in resp.split('\n'):
+        clean = line.strip('-• \t')
+        if clean:
+            steps.append(Task(id=str(uuid4()), description=clean))
+    state.steps = steps
+    state.ideas_data[idea]["steps"] = [s.dict() for s in steps]
+    return state, resp
