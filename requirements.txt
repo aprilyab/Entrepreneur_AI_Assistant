@@ -1,5 +1,5 @@
-langgraph
 pydantic
 python-dateutil
-openai
-langchain
+python-dotenv
+pytest
+groq SDK 
