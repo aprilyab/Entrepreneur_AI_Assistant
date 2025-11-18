@@ -1,5 +1,5 @@
 [project]
-name = "entrepreneur_ai_assistant"
+name = "Entrepreneur_AI_Assistant"
 version = "0.1.0"
 description = "LangGraph-style LLM-driven assistant for entrepreneurs. Helps users generate startup ideas, plan actionable steps, prioritize tasks, and schedule timelines using a modern LLM workflow."
 readme = "README.md"
@@ -23,4 +23,4 @@ dependencies = [
 
 
 [project.scripts]
-entrepreneur-ai = "entrepreneur_ai_assistant.main:main"
+entrepreneur-ai = "Entrepreneur_AI_Assistant.main:main"
