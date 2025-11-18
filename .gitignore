@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+
+# Virtual env
+.venv/
+
+
+# Env
+.env
+.env.*
+
+
+# Data
+.data/
+
+
+# IDE
+.vscode/
+.idea/
+
+
+# Lockfiles
+poetry.lock
+uv.lock
