@@ -21,6 +21,10 @@ dependencies = [
 [project.urls]
 "Source" = "https://github.com/aprilyab/Entrepreneur_AI_Assistant"
 
-
 [project.scripts]
-entrepreneur-ai = "Entrepreneur_AI_Assistant.main:main"
+entrepreneur-ai = "src.main:main"
+
+[tool.poetry]
+packages = [
+    { include = "src" }
+]
