@@ -1,0 +1,26 @@
+[project]
+name = "entrepreneur_ai_assistant"
+version = "0.1.0"
+description = "LangGraph-style LLM-driven assistant for entrepreneurs. Helps users generate startup ideas, plan actionable steps, prioritize tasks, and schedule timelines using a modern LLM workflow."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Henok Yoseph" }
+]
+dependencies = [
+    "pydantic>=2.0",               # For data validation and structured state
+    "python-dateutil>=2.8",        # Handles datetime parsing and manipulation
+    "groq>=0.1.0",                 # Free LLM client (Llama 3.1) for AI responses
+    "langchain>=0.3.25",           # Provides LLM wrappers and tools for workflow
+    "langgraph>=0.4.8",            # Graph engine for node-based AI assistants
+    "python-dotenv>=1.0",          # Loads API keys and environment variables securely
+    "pytest>=7.0",                 # Unit testing framework
+    "pytest-cov>=4.0"              # Test coverage reporting
+]
+
+[project.urls]
+"Source" = "https://github.com/aprilyab/Entrepreneur_AI_Assistant"
+
+
+[project.scripts]
+entrepreneur-ai = "entrepreneur_ai_assistant.main:main"
