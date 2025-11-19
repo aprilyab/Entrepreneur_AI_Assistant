@@ -1,14 +1,36 @@
-from typing import Tuple
-from langchain.chat_models import ChatOpenAI
-from langchain.schema import HumanMessage, SystemMessage
+from typing import Tuple, Optional, Callable
+from src.state import EntrepreneurState
+from src.llm.gemini_llm import ask_gemini
 
+def goal_node(
+    state: EntrepreneurState, 
+    user_input: Optional[str] = None
+) -> Tuple[EntrepreneurState, str, Optional[Callable]]:
 
-llm = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo", openai_api_key="YOUR_OPENAI_KEY")
+    if user_input is None or user_input.strip() == "":
+        return state, "What is your main business goal?", goal_node
 
+    if not state.current_idea:
+        return state, "Error: No idea found. Please restart.", None
 
-def goal_node(state, user_text: str) -> Tuple:
-    state.messages.append(user_text)
-    prompt = f"The user wants to start a business: '{user_text}'. Summarize this idea concisely and ask for clarification about the preferred business model (online, offline, hybrid)."
-    response = llm([SystemMessage(content="You are an AI entrepreneur assistant."), HumanMessage(content=prompt)])
-    state.startup_idea = user_text
-    return state, response.content.strip()
+    idea = state.current_idea
+
+    if idea not in state.ideas_data:
+        state.ideas_data[idea] = {}
+
+    state.ideas_data[idea]["goal"] = user_input
+
+    # Try Gemini
+    try:
+        summary = ask_gemini(f"Summarize this goal in 3 bullets: {user_input}")
+    except Exception as e:
+        summary = f"⚠️ Gemini failed to summarize your goal. Reason: {e}"
+
+    msg = (
+        f"📌 **Goal Summary for your idea:**\n\n"
+        f"{summary}\n\n"
+        "Next: Market analysis."
+    )
+
+    from src.nodes.market_node import market_node
+    return state, msg, market_node

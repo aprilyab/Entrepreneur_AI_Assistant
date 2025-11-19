@@ -1,5 +1,0 @@
-pydantic
-python-dateutil
-python-dotenv
-pytest
-groq SDK 

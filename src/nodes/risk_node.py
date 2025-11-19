@@ -1,12 +1,13 @@
-from src.llm.groq_llm import ask_groq
+from typing import Tuple
+from src.state import EntrepreneurState
+from src.llm.gemini_llm import ask_gemini
 
-def risk_node(state, user_text=None):
-    """
-    Evaluates potential risks for the startup and ways to mitigate them.
-    """
-    prompt = f"List potential risks for the startup idea: '{state.current_idea}' and propose mitigation strategies."
-    resp = ask_groq(prompt)
-    
-    state.ideas_data[state.current_idea]['risks'] = resp
+def risk_node(state: EntrepreneurState) -> Tuple[EntrepreneurState, str, callable]:
+    idea = state.current_idea
+    prompt = f"Identify risks and mitigation strategies for: {idea}"
+    resp = ask_gemini(prompt)
+    state.ideas_data[idea]["risks"] = resp
     state.messages.append(resp)
-    return state, resp
+
+    from src.nodes.growth_node import growth_node
+    return state, resp, growth_node

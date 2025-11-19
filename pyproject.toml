@@ -10,7 +10,6 @@ authors = [
 dependencies = [
     "pydantic>=2.0",               # For data validation and structured state
     "python-dateutil>=2.8",        # Handles datetime parsing and manipulation
-    "groq>=0.1.0",                 # Free LLM client (Llama 3.1) for AI responses
     "langchain>=0.3.25",           # Provides LLM wrappers and tools for workflow
     "langgraph>=0.4.8",            # Graph engine for node-based AI assistants
     "python-dotenv>=1.0",          # Loads API keys and environment variables securely
