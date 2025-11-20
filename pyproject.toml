@@ -1,29 +1,26 @@
-[project]
+[tool.poetry]
 name = "Entrepreneur_AI_Assistant"
 version = "0.1.0"
 description = "LangGraph-style LLM-driven assistant for entrepreneurs. Helps users generate startup ideas, plan actionable steps, prioritize tasks, and schedule timelines using a modern LLM workflow."
+authors = ["Henok Yoseph <henok@example.com>"]
 readme = "README.md"
-requires-python = ">=3.11"
-authors = [
-    { name = "Henok Yoseph" }
-]
-dependencies = [
-    "pydantic>=2.0",               # For data validation and structured state
-    "python-dateutil>=2.8",        # Handles datetime parsing and manipulation
-    "langchain>=0.3.25",           # Provides LLM wrappers and tools for workflow
-    "langgraph>=0.4.8",            # Graph engine for node-based AI assistants
-    "python-dotenv>=1.0",          # Loads API keys and environment variables securely
-    "pytest>=7.0",                 # Unit testing framework
-    "pytest-cov>=4.0"              # Test coverage reporting
-]
+packages = [{ include = "src" }]
+python = ">=3.11"
 
-[project.urls]
-"Source" = "https://github.com/aprilyab/Entrepreneur_AI_Assistant"
+[tool.poetry.dependencies]
+python = ">=3.11"
+pydantic = "^2.0"
+python-dateutil = "^2.8"
+langchain = "^0.3.25"
+langgraph = "^0.4.8"
+python-dotenv = "^1.0"
 
-[project.scripts]
+[tool.poetry.dev-dependencies]
+pytest = "^7.0"
+pytest-cov = "^4.0"
+
+[tool.poetry.scripts]
 entrepreneur-ai = "src.main:main"
 
-[tool.poetry]
-packages = [
-    { include = "src" }
-]
+[tool.poetry.urls]
+Source = "https://github.com/aprilyab/Entrepreneur_AI_Assistant"

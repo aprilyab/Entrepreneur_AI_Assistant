@@ -1,56 +1,52 @@
-from src.state import EntrepreneurState
+# src/graph.py
+from src.state import AppState
+from src.memory import memory_store
 from src.nodes.idea_node import idea_node
-from src.nodes.idea_selector_node import idea_selector_node
-from src.nodes.goal_node import goal_node
-from src.nodes.market_node import market_node
+from src.nodes.optional_info_node import optional_info_node
+from src.nodes.market_analysis_node import market_analysis_node
 from src.nodes.business_model_node import business_model_node
-from src.nodes.validation_node import validation_node
 from src.nodes.decision_node import decision_node
-from src.nodes.risk_node import risk_node
+from src.nodes.risk_assessment_node import risk_node
 from src.nodes.growth_node import growth_node
-from src.nodes.response_node import response_node
-
+from src.nodes.business_plan_node import business_plan_node
 
 class EntrepreneurGraph:
-    def __init__(self):
-        self.state = None
+    def __init__(self, session_id: str = "001", user_name: str = None):
+        self.state = AppState(session_id=session_id, user_name=user_name)
+        self.memory = memory_store.MemoryStore()
 
-    def start(self, session_id: str, user_name: str = None, consent: bool = False):
-        """Initialize the session state."""
-        self.state = EntrepreneurState(session_id=session_id, user_name=user_name, consent=consent)
+    def run(self, user_text: str):
+        # Step 1: Idea
+        self.state = idea_node(self.state, user_text)
+
+        # Step 2: Optional info
+        self.state = optional_info_node(self.state)
+
+        # Step 3: Business Model
+        self.state = business_model_node(self.state)
+
+        # Step 4: Decision Node
+        self.state = decision_node(self.state)  # if decision_node also now returns state only
+
+        # Step 5: Branch based on decision
+        if self.state.go_to_risk:
+            self.state = risk_node(self.state)
+        else:
+            self.state = growth_node(self.state)
+
+        # Step 6: Generate final plan
+        self.state = business_plan_node(self.state)
+
+
+        # Step 7: Final Business Plan
+        self.state = business_plan_node(self.state)
+
+        # Step 8: Save session to memory
+        self.memory.save_session({
+            "session_id": self.state.session_id,
+            "user_name": self.state.user_name,
+            "idea": self.state.idea,
+            "plan": self.state.full_plan,
+        })
+
         return self.state
-
-    def run_full_flow(self, user_text: str):
-        """Run the full LangGraph workflow with branching logic."""
-        # --- Step 1: Get Idea ---
-        self.state, _ = idea_node(self.state, user_text)
-
-        # --- Step 2: Selector (online/offline/hybrid) ---
-        self.state, _ = idea_selector_node(self.state, "online")  # default for now
-
-        # --- Step 3: Goal Node ---
-        self.state, _ = goal_node(self.state)
-
-        # --- Step 4: Branch: Market or Business Model first ---
-        if getattr(self.state, "branch_to_market", True):
-            self.state, _ = market_node(self.state)
-            self.state, _ = validation_node(self.state)
-            self.state, _ = decision_node(self.state)
-        else:
-            self.state, _ = business_model_node(self.state)
-            self.state, _ = validation_node(self.state)
-            self.state, _ = decision_node(self.state)
-
-        # --- Step 5: Branch based on decision ---
-        if getattr(self.state, "go_to_risk", True):
-            self.state, _ = risk_node(self.state)
-        else:
-            self.state, _ = growth_node(self.state)
-
-        # --- Step 6: Final response ---
-        final_text, data = response_node(self.state)
-        return final_text, data
-
-
-# Instantiate the graph
-graph = EntrepreneurGraph()

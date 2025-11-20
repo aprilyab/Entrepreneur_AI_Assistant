@@ -1,19 +1,25 @@
 # src/nodes/decision_node.py
-from typing import Tuple, Optional
-from src.state import EntrepreneurState
+from src.state import AppState
 
-def decision_node(state: EntrepreneurState, user_input: Optional[str] = None) -> Tuple[EntrepreneurState, str, Optional[callable]]:
-    choice = user_input.lower() if user_input else None
-    if not choice:
-        return state, "Next step: risk or growth?", decision_node
+def decision_node(state: AppState) -> AppState:
+    """
+    Decide the next branch based on existing data.
+    - If market_analysis exists and mentions risk, go to risk_node.
+    - Otherwise, go to growth_node.
+    """
+    # Safe access: use empty string if attribute is None
+    market_info = getattr(state, "market_analysis", "")
+    if market_info is None:
+        market_info = ""
 
-    state.messages.append(f"User chose: {choice}")
-    # Local import
-    if choice == "risk":
-        from src.nodes.risk_node import risk_node
-        next_node = risk_node
+    # Example decision logic
+    if "risk" in market_info.lower() or "uncertain" in market_info.lower():
+        state.go_to_risk = True
     else:
-        from src.nodes.growth_node import growth_node
-        next_node = growth_node
+        state.go_to_risk = False
 
-    return state, f"Proceeding with {choice} strategy.", next_node
+    # You can also set branch_to_market for initial branching
+    if not hasattr(state, "branch_to_market"):
+        state.branch_to_market = True  # default branch
+
+    return state

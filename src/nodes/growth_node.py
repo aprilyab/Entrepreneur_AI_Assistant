@@ -1,13 +1,8 @@
-from typing import Tuple
-from src.state import EntrepreneurState
+from src.state import AppState
 from src.llm.gemini_llm import ask_gemini
-from src.nodes.response_node import response_node
 
-def growth_node(state: EntrepreneurState) -> Tuple[EntrepreneurState, str, callable]:
-    idea = state.current_idea
-    prompt = f"List growth strategies and opportunities for: {idea}"
-    resp = ask_gemini(prompt)
-    state.ideas_data[idea]["growth"] = resp
-    state.messages.append(resp)
-
-    return state, resp, response_node
+def growth_node(state: AppState) -> AppState:
+    if not state.financials:
+        prompt = f"Propose a growth plan and financial strategy for the startup:\nIdea: {state.idea}"
+        state.financials = ask_gemini(prompt)
+    return state

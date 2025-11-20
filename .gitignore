@@ -1,26 +1,54 @@
-# Python
+# ----------------------
+# Python bytecode
+# ----------------------
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
 *.pyd
 
-
-# Virtual env
+# ----------------------
+# Virtual environments
+# ----------------------
 .venv/
+env/
+venv/
 
-# Env
+# ----------------------
+# Environment variables
+# ----------------------
 .env
 .env.*
+.venv/.env
 
-
-# Data
+# ----------------------
+# Data / output files
+# ----------------------
 .data/
+*.sqlite
+*.db
+*.csv
 
-
-# IDE
+# ----------------------
+# IDE / editor settings
+# ----------------------
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
 
-.env
-.env
-.env
+# ----------------------
+# OS files
+# ----------------------
+.DS_Store
+Thumbs.db
+
+# ----------------------
+# Logs
+# ----------------------
+*.log
+
+# ----------------------
+# Misc
+# ----------------------
+*.bak
+*.swp

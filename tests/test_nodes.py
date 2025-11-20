@@ -1,76 +1,44 @@
-"""
-Test all nodes using EntrepreneurState (Pydantic model) for the updated LangGraph workflow.
-"""
-
-from uuid import uuid4
-from src.state import EntrepreneurState
+# tests/test_nodes.py
+import unittest
+from src.state import AppState
 from src.nodes.idea_node import idea_node
-from src.nodes.idea_selector_node import idea_selector_node
-from src.nodes.goal_node import goal_node
-from src.nodes.market_node import market_node
-from src.nodes.business_model_node import business_model_node
+from src.nodes.optional_info_node import optional_info_node
+from src.nodes.market_analysis_node import market_analysis_node
+from src.nodes.business_plan_node import business_plan_node
 from src.nodes.validation_node import validation_node
-from src.nodes.decision_node import decision_node
-from src.nodes.risk_node import risk_node
-from src.nodes.growth_node import growth_node
-from src.nodes.response_node import response_node
+from src.nodes.risk_assessment_node import risk_assessment_node
+from src.nodes.financial_node import financial_node
+from src.nodes.business_plan_node import business_plan_node
 
-# Initialize the state
-state = EntrepreneurState(
-    session_id=str(uuid4()),
-    user_name="Henok",
-    consent=True
-)
+class TestEntrepreneurWorkflow(unittest.TestCase):
+    def setUp(self):
+        self.state = AppState()
 
-# --- Test Idea Node ---
-idea = "I want to build a mini company for recycling with 100,000 ETB initial capital."
-state, resp, next_node = idea_node(state)
-print("\n--- Idea Node ---")
-print(resp)
+    def test_full_flow(self):
+        # Provide default test idea to avoid interactive prompt
+        self.state = idea_node(self.state, "I want to build a mini company for recycling with 100,000 ETB initial capital.")
+        self.assertTrue(self.state.idea and len(self.state.idea) > 0)
 
-# --- Test Idea Selector Node ---
-state, resp, next_node = idea_selector_node(state)
-print("\n--- Idea Selector Node ---")
-print(resp)
+        self.state = optional_info_node(self.state)  # will use LLM to decide/store
+        self.assertTrue(self.state.extra_info and len(self.state.extra_info) > 0)
 
-# --- Test Goal Node ---
-state, resp, next_node = goal_node(state)
-print("\n--- Goal Node ---")
-print(resp)
+        self.state = market_analysis_node(self.state)
+        self.assertTrue(self.state.market_analysis and len(self.state.market_analysis) > 0)
 
-# Decide next node based on goal/branch
-if next_node == market_node:
-    state, resp, next_node = market_node(state)
-    print("\n--- Market Node ---")
-    print(resp)
-else:
-    state, resp, next_node = business_model_node(state)
-    print("\n--- Business Model Node ---")
-    print(resp)
+        self.state = business_plan_node(self.state)
+        self.assertTrue(self.state.business_model and len(self.state.business_model) > 0)
 
-# --- Test Validation Node ---
-state, resp, next_node = validation_node(state)
-print("\n--- Validation Node ---")
-print(resp)
+        self.state = validation_node(self.state)
+        self.assertTrue(self.state.validation_strategy and len(self.state.validation_strategy) > 0)
 
-# --- Test Decision Node ---
-state, resp, next_node = decision_node(state)
-print("\n--- Decision Node ---")
-print(resp)
+        self.state = risk_assessment_node(self.state)
+        self.assertTrue(self.state.risks and len(self.state.risks) > 0)
 
-# --- Test Risk or Growth Node depending on choice ---
-if next_node == risk_node:
-    state, resp, next_node = risk_node(state)
-    print("\n--- Risk Node ---")
-    print(resp)
-else:
-    state, resp, next_node = growth_node(state)
-    print("\n--- Growth Node ---")
-    print(resp)
+        self.state = financial_node(self.state)
+        self.assertTrue(self.state.financials and len(self.state.financials) > 0)
 
-# --- Test Response Node ---
-state, final_output, _ = response_node(state)
-print("\n--- Response Node ---")
-print(final_output)
+        self.state = business_plan_node(self.state)
+        self.assertTrue(self.state.full_plan and len(self.state.full_plan) > 0)
 
-print("\nAll nodes tested successfully!")
+if __name__ == "__main__":
+    unittest.main()
