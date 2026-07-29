@@ -1,200 +1,168 @@
-#  Entrepreneur AI Assistant
+# Prooflane
 
-A **LangGraph-based AI assistant** that guides entrepreneurs from idea to actionable business plan using a memory-enabled, decision-driven workflow.
+Prooflane is an evidence-first AI venture studio. It turns a startup idea into a
+decision-ready workspace containing market research, a business model, financial
+projections, risk analysis, validation experiments, an AI mentor, and investor
+exports.
 
----
+The product is intentionally more than a text generator. It keeps assumptions,
+evidence, experiments, generation progress, contradictions, and deterministic
+financial checks as structured records that founders can inspect and update.
 
-##  Features
+## What is implemented
 
-- Captures startup ideas and optional details.  
-- Performs market analysis and business modeling.  
-- Provides validation strategies and risk assessment.  
-- Generates a **full structured business plan**.  
-- Supports follow-up questions after plan generation.  
-- Uses memory to track sessions and maintain context.  
-- Implements branching decisions based on workflow state.  
+- Eleven-stage LangGraph workflow for research, strategy, finance, risk, validation,
+  cross-section auditing, and final compilation.
+- Live web research with inline sources and refreshable evidence claims.
+- Evidence-adjusted viability scoring that discounts unverified conclusions.
+- Editable assumptions, evidence reviews, and validation experiments.
+- Persisted background generation with progress, cancellation, resume, and startup
+  recovery.
+- Deterministic financial consistency checks for funding allocations and unit
+  economics.
+- Authenticated plan library and plan-grounded AI mentor.
+- Decision, risk, market, business model, financial, and full-plan views.
+- Generated PDF report, PowerPoint pitch deck, and Excel financial workbook.
+- Production-mode Docker images for Next.js, FastAPI, and PostgreSQL.
 
----
+## Quick start
 
-##  Architecture (All-in-One Flow)
+Requirements: Docker Engine or Docker Desktop with the Compose plugin.
+
+```bash
+cp .env.example .env.local
+```
+
+Add at least one valid Gemini API key to `.env.local`, replace `SECRET_KEY` with
+a long random value, then run:
+
+```bash
+./setup.sh
+```
+
+Open:
+
+- Product: <http://localhost:3000>
+- API: <http://localhost:8000>
+- Interactive API docs: <http://localhost:8000/docs>
+
+Useful commands:
+
+```bash
+make ps
+make logs
+make health
+make check
+make smoke
+docker compose down
+```
+
+`make smoke-full` performs a real, end-to-end AI generation and consumes external
+API quota.
+
+## Architecture
 
 ```text
-[User Input] 
-      │
-      ▼
-  ┌───────────────┐
-  │   Idea Node    │
-  └───────────────┘
-      │
-      ▼
-  ┌───────────────────┐
-  │ Optional Info Node │
-  └───────────────────┘
-      │
-      ▼
-  ┌───────────────────┐
-  │ Market Analysis    │
-  └───────────────────┘
-      │
-      ▼
-  ┌───────────────────┐
-  │ Business Model     │
-  └───────────────────┘
-      │
-      ▼
-  ┌───────────────────┐
-  │ Validation Node    │
-  └───────────────────┘
-      │
-      ▼
-  ┌───────────────────┐
-  │ Decision Node      │
-  └───────────────────┘
-      │
-  ┌───┴────────────┐
-  ▼                ▼
-Risk Node        Growth Node
-  │                │
-  └──────┬─────────┘
-         ▼
-  ┌───────────────────┐
-  │ Business Plan Node │
-  └───────────────────┘
-         │
-         ▼
-  [Follow-up Questions / Memory Enabled]
+Browser / Next.js
+        |
+        | JWT + JSON / generated files
+        v
+FastAPI API ───── PostgreSQL
+        |
+        v
+Persisted generation job
+        |
+        v
+LangGraph supervisor
+  market → identity → strategy → capabilities → finance
+  → deterministic finance check → risk → growth → validation
+  → contradiction audit → compiler
+        |
+        +── Gemini structured generation
+        +── DDGS live research
+        +── ReportLab / python-pptx / OpenPyXL exports
+```
 
-## Nodes & Responsibilities
+Generation returns `202 Accepted` immediately. Work progresses between durable
+stage checkpoints, and the frontend polls the generation job rather than holding
+one fragile request open.
 
-| Node Name            | Functionality                                                      |
-|----------------------|--------------------------------------------------------------------|
-| Idea Node            | Capture the startup idea from the user                             |
-| Optional Info Node   | Gather additional optional details                                 |
-| Market Analysis Node | Generate market insights and trends                                |
-| Business Model Node  | Propose business models (value prop, revenue, pricing, operations) |
-| Validation Node      | Suggest ways to validate the idea (MVP, surveys, experiments)      |
-| Decision Node        | Decide branch: go to risk assessment or growth                     |
-| Risk Node            | Identify potential risks and mitigation plans                      |
-| Growth Node          | Suggest scaling/growth strategies                                  |
-| Business Plan Node   | Compile a full structured plan from all nodes                      |
-| Follow-up Node       | Answer follow-up questions using memory                            |
+## Repository map
 
-git clone https://github.com/yourusername/entrepreneur-ai-assistant.git
-cd entrepreneur-ai-assistant
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+```text
+.
+├── backend/
+│   ├── app/
+│   │   ├── api/          # Authentication and plan HTTP endpoints
+│   │   ├── models/       # SQLAlchemy persistence models
+│   │   ├── nodes/        # Specialist workflow agents and auditors
+│   │   ├── schemas/      # API and structured-LLM contracts
+│   │   ├── services/     # Workflow, research, jobs, scoring, exports
+│   │   └── utils/        # Authentication and document builders
+│   └── scripts/          # Deterministic and integration smoke checks
+├── frontend/
+│   ├── app/              # Next.js routes and product workspace
+│   ├── components/       # Report, chart, progress, validation UI
+│   └── lib/              # API client
+├── docs/
+│   ├── API.md
+│   ├── ARCHITECTURE.md
+│   ├── CODEBASE_AUDIT.md
+│   └── OPERATIONS.md
+├── docker-compose.yml
+├── Makefile
+└── setup.sh
+```
 
-## 🛠 Installation
+## Verification
+
+The repository uses layered checks:
 
 ```bash
-git clone https://github.com/yourusername/entrepreneur-ai-assistant.git
-cd entrepreneur-ai-assistant
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+# No network or database: financial arithmetic and evidence scoring
+docker compose exec -T backend python scripts/check_deterministic.py
+
+# No network: build and parse PDF, PowerPoint, and Excel
+docker compose exec -T backend python scripts/check_exports.py
+
+# Authenticated database/API CRUD
+docker compose exec -T backend python scripts/smoke_validation_workspace.py
+
+# Live research refresh; uses network and API quota
+docker compose exec -T backend python scripts/smoke_research_refresh.py
+
+# Full live generation and structured persistence
+docker compose exec -T backend python scripts/smoke_full_generation.py
+
+# Production frontend compilation
+docker compose exec -T frontend npm run build
 ```
 
+See [CODEBASE_AUDIT.md](docs/CODEBASE_AUDIT.md) for the detailed analysis and
+test coverage boundaries.
 
+## Important limitations
 
-### Configure .env
+- AI output is decision support, not verified investment, legal, or financial advice.
+- Search results are research leads. A founder must open and verify a source before
+  marking an evidence claim verified.
+- Background jobs currently execute inside the FastAPI process. A horizontally
+  scaled deployment should move them to a dedicated queue/worker.
+- Database tables are created automatically at startup. Production deployments
+  should add versioned schema migrations before evolving the model.
+- Authentication is single-user ownership with JWTs; there is no RBAC, team
+  workspace, password reset, email verification, or server-side token revocation yet.
+- The browser stores the access token locally. A production hardening pass should
+  use secure, HTTP-only cookies and add rate limiting.
 
-```
-GEMINI_API_KEY=your_google_generative_api_key
-```
+## Documentation
 
+- [Architecture and data flow](docs/ARCHITECTURE.md)
+- [API reference](docs/API.md)
+- [Operations and security](docs/OPERATIONS.md)
+- [Detailed codebase audit](docs/CODEBASE_AUDIT.md)
+- [Backend development notes](backend/README.md)
 
-## ⚡ Usage
+## License
 
-```bash
-python -m src.main
-```
-
-session_id
-
-## Workflow Example
-
-**Input:** "I want to start a small cloth shop"
-
-1. **Idea Node** → Captures the idea
-2. **Optional Info Node** → Gather target customers
-3. **Market Analysis Node** → Market insights
-4. **Business Model Node** → Value proposition, revenue streams
-5. **Validation Node** → Suggest MVP testing
-6. **Decision Node** → Choose Risk Assessment or Growth path
-7. **Risk Node** → Identify risks
-8. **Business Plan Node** → Generate full plan
-9. **Follow-up** → Ask questions based on plan
-
----
-
-## Memory & State
-
-Memory Store keeps previous sessions:
-    - `session_id`
-    - `user_name`
-    - `idea`
-    - `final_plan`
-
-Supports:
-
-
-- Context-aware follow-ups
-- Tracking user progress
-- Dynamic branching decisions
-
----
-
-## Branching Logic
-
-- Market-first or Business Model-first based on state `branch_to_market`.
-- Risk assessment or Growth path based on `go_to_risk`.
-- Enables dynamic, user-driven workflow.
-
-
----
-
-## Example Output
-
-### === Full Business Plan ===
-
-**Idea:** Small cloth shop
-
-**Market Analysis:**
-    - Local demand for handmade clothing
-    - Competitors: X, Y, Z
-    - Opportunities: online sales, eco-friendly materials
-
-**Business Model:**
-    - Value proposition: unique, sustainable fashion
-    - Customer segments: local youth, online buyers
-    - Revenue streams: online sales, in-store
-    - Pricing: $20-$50 per item
-
-**Validation:**
-    - Launch pilot collection
-    - Gather feedback from first 50 customers
-
-**Risk Assessment:**
-    - Low foot traffic risk
-    - Supply chain delays
-
-**Next Steps:**
-    - Build team
-    - Create marketing campaign
-    - Track metrics
-
-**Follow-up Question:** "How to attract first 100 customers?"
-**Answer:**
-    - Use social media campaigns targeting local youth
-    - Collaborate with influencers
-    - Offer launch discounts
-
----
-
-## Future Improvements
-
-- Web-based UI using Streamlit or Gradio
-- Enhanced memory for cross-session learning
-- More specialized nodes: marketing, finance, operations
-- Export plan to PDF or Word automatically
+[MIT](LICENSE) © 2026 Henok Yoseph.

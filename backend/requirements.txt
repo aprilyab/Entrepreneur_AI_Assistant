@@ -1,0 +1,37 @@
+# backend/requirements.txt
+# Core
+pydantic>=2.0
+pydantic-settings>=2.0
+python-dotenv>=1.0
+python-dateutil>=2.8
+
+# LangGraph multi-agent
+langgraph>=0.3.0
+langchain-core>=0.3.0
+langchain-google-genai>=2.0
+
+# Web search
+ddgs>=9.5
+
+# FastAPI backend
+fastapi>=0.115
+uvicorn>=0.30
+
+# Database
+sqlalchemy>=2.0
+asyncpg>=0.30
+
+# Auth
+python-jose[cryptography]>=3.3
+passlib[bcrypt]>=1.7
+bcrypt==4.0.1
+python-multipart>=0.0.9
+email-validator>=2.2
+
+# Export
+python-pptx>=1.0
+reportlab>=4.0
+openpyxl>=3.1
+
+# HTTP
+httpx>=0.27

@@ -1,54 +1,49 @@
-# ----------------------
-# Python bytecode
-# ----------------------
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-
-# ----------------------
-# Virtual environments
-# ----------------------
 .venv/
 env/
 venv/
 
-# ----------------------
-# Environment variables
-# ----------------------
+# Environment
 .env
 .env.*
-.venv/.env
+!.env.example
+!backend/.env.example
 
-# ----------------------
-# Data / output files
-# ----------------------
+# Data
 .data/
 *.sqlite
 *.db
-*.csv
 
-# ----------------------
-# IDE / editor settings
-# ----------------------
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# IDE
 .vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
 
-# ----------------------
-# OS files
-# ----------------------
+# OS
 .DS_Store
 Thumbs.db
 
-# ----------------------
 # Logs
-# ----------------------
 *.log
 
-# ----------------------
-# Misc
-# ----------------------
+# Test and coverage output
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Generated exports and local artifacts
+artifacts/
+
+# Local scratch files
 *.bak
 *.swp
