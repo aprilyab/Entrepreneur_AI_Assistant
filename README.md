@@ -107,7 +107,6 @@ one fragile request open.
 ├── docs/
 │   ├── API.md
 │   ├── ARCHITECTURE.md
-│   ├── CODEBASE_AUDIT.md
 │   └── OPERATIONS.md
 ├── docker-compose.yml
 ├── Makefile
@@ -138,9 +137,6 @@ docker compose exec -T backend python scripts/smoke_full_generation.py
 docker compose exec -T frontend npm run build
 ```
 
-See [CODEBASE_AUDIT.md](docs/CODEBASE_AUDIT.md) for the detailed analysis and
-test coverage boundaries.
-
 ## Important limitations
 
 - AI output is decision support, not verified investment, legal, or financial advice.
@@ -160,7 +156,6 @@ test coverage boundaries.
 - [Architecture and data flow](docs/ARCHITECTURE.md)
 - [API reference](docs/API.md)
 - [Operations and security](docs/OPERATIONS.md)
-- [Detailed codebase audit](docs/CODEBASE_AUDIT.md)
 - [Backend development notes](backend/README.md)
 
 ## License
